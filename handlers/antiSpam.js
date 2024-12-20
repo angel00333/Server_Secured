@@ -1,14 +1,14 @@
 module.exports = {
     handleSpam: async (message) => {
-        const FLOOD_THRESHOLD = 5; // Máximo de mensajes permitidos en el intervalo
-        const FLOOD_INTERVAL = 5000; // Intervalo en milisegundos
-        const MAX_MESSAGE_LENGTH = 1000; // Longitud máxima de un mensaje para evitar párrafos grandes
+        const FLOOD_THRESHOLD = 5;
+        const FLOOD_INTERVAL = 5000;
+        const MAX_MESSAGE_LENGTH = 1000;
         const messageMap = new Map();
         const lastMessages = new Map();
 
         const member = message.member;
 
-        // Detectar enlaces (spam)
+        // Detectar enlaces
         if (/(http|https|www\.)/i.test(message.content)) {
             try {
                 await member.ban({ reason: 'Spam: envío de enlaces no permitidos.' });
@@ -19,19 +19,19 @@ module.exports = {
             return;
         }
 
-        // Detectar flood
         const now = Date.now();
+
+        // Detectar flood
         if (!messageMap.has(member.id)) {
             messageMap.set(member.id, []);
         }
-
         const timestamps = messageMap.get(member.id);
         timestamps.push(now);
 
-        // Limpiar mensajes antiguos
-        while (timestamps.length && timestamps[0] < now - FLOOD_INTERVAL) {
-            timestamps.shift();
-        }
+        messageMap.set(
+            member.id,
+            timestamps.filter((timestamp) => timestamp >= now - FLOOD_INTERVAL)
+        );
 
         if (timestamps.length > FLOOD_THRESHOLD) {
             try {
@@ -40,7 +40,8 @@ module.exports = {
             } catch (error) {
                 console.error(`No se pudo banear a ${member.user.tag}:`, error);
             }
-            messageMap.delete(member.id); // Elimina datos de mensajes del usuario baneado
+            messageMap.delete(member.id);
+            return;
         }
 
         // Detectar mensajes grandes
@@ -55,20 +56,19 @@ module.exports = {
         }
 
         // Detectar mensajes repetidos
-        if (lastMessages.has(member.id)) {
-            const lastMessage = lastMessages.get(member.id);
-            if (lastMessage === message.content) {
-                try {
-                    await message.delete();
-                    console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
-                } catch (error) {
-                    console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-                }
-                return;
+        const normalize = (text) => text.trim().toLowerCase();
+        const currentMessage = normalize(message.content);
+
+        if (lastMessages.get(member.id) === currentMessage) {
+            try {
+                await message.delete();
+                console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
+            } catch (error) {
+                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
+            return;
         }
 
-        // Guardar el último mensaje
-        lastMessages.set(member.id, message.content);
+        lastMessages.set(member.id, currentMessage);
     },
 };
