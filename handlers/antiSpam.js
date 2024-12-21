@@ -9,7 +9,8 @@ module.exports = {
         const member = message.member;
 
         // Detectar enlaces
-        if (/(http|https|www\.)/i.test(message.content)) {
+        const urlPattern = /(http|https|www\.)/i;
+        if (urlPattern.test(message.content)) {
             try {
                 await member.ban({ reason: 'Spam: envío de enlaces no permitidos.' });
                 console.log(`Usuario ${member.user.tag} baneado por enviar enlaces.`);
@@ -19,15 +20,13 @@ module.exports = {
             return;
         }
 
+        // Detectar flood (palabras repetidas o letras solas)
         const now = Date.now();
-
-        // Detectar flood
         if (!messageMap.has(member.id)) {
             messageMap.set(member.id, []);
         }
         const timestamps = messageMap.get(member.id);
         timestamps.push(now);
-
         messageMap.set(
             member.id,
             timestamps.filter((timestamp) => timestamp >= now - FLOOD_INTERVAL)
@@ -44,21 +43,10 @@ module.exports = {
             return;
         }
 
-        // Detectar mensajes grandes
-        if (message.content.length > MAX_MESSAGE_LENGTH) {
-            try {
-                await message.delete();
-                console.log(`Mensaje de ${member.user.tag} eliminado por ser demasiado largo.`);
-            } catch (error) {
-                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-            }
-            return;
-        }
-
-        // Detectar mensajes repetidos
+        // Detectar flood de palabras repetidas
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
-
+        
         if (lastMessages.get(member.id) === currentMessage) {
             try {
                 await message.delete();
@@ -67,6 +55,34 @@ module.exports = {
                 console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
             return;
+        }
+
+        // Detectar letras solas (un solo carácter repetido)
+        const repeatedCharPattern = /([a-zA-Z])\1{2,}/; // Más de 2 caracteres repetidos
+        if (repeatedCharPattern.test(message.content)) {
+            try {
+                await message.delete();
+                console.log(`Mensaje de ${member.user.tag} eliminado por flood de letras solas.`);
+            } catch (error) {
+                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
+            }
+            return;
+        }
+
+        // Detectar imágenes NSFW
+        if (message.attachments.size > 0) {
+            const attachment = message.attachments.first();
+            if (attachment.url.match(/\.(jpe?g|png|gif|bmp|webp)$/i)) {
+                // Aquí puedes usar una librería de detección NSFW si tienes acceso a una API
+                // Para efectos de ejemplo, asumimos que cualquier imagen puede ser NSFW
+                try {
+                    await message.delete();
+                    console.log(`Imagen de ${member.user.tag} eliminada por ser NSFW.`);
+                } catch (error) {
+                    console.error(`No se pudo eliminar la imagen de ${member.user.tag}:`, error);
+                }
+                return;
+            }
         }
 
         lastMessages.set(member.id, currentMessage);
