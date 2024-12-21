@@ -6,7 +6,6 @@ module.exports = {
         const FLOOD_THRESHOLD = 5;
         const FLOOD_INTERVAL = 5000;
         const MAX_MESSAGE_LENGTH = 1000;
-        const MESSAGE_HISTORY_LIMIT = 10;
         const messageMap = new Map();
         const lastMessages = new Map();
 
@@ -29,56 +28,31 @@ module.exports = {
             return;
         }
 
-        // Detectar flood (palabras repetidas o letras solas)
-        const now = Date.now();
-        if (!messageMap.has(member.id)) {
-            messageMap.set(member.id, []);
-        }
-        const timestamps = messageMap.get(member.id);
-        timestamps.push(now);
-        messageMap.set(
-            member.id,
-            timestamps.filter((timestamp) => timestamp >= now - FLOOD_INTERVAL)
-        );
-
-        if (timestamps.length > FLOOD_THRESHOLD) {
-            try {
-                await member.ban({ reason: 'Flood: envío masivo de mensajes.' });
-                console.log(`Usuario ${member.user.tag} baneado por flood.`);
-            } catch (error) {
-                console.error(`No se pudo banear a ${member.user.tag}:`, error);
-            }
-            messageMap.delete(member.id);
-            return;
-        }
-
-        // Detectar palabras repetidas horizontal y verticalmente
+        // Detectar flood (vertical: mensajes repetidos consecutivamente)
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
-        const currentWords = new Set(currentMessage.split(/\s+/));
 
         if (!lastMessages.has(member.id)) {
             lastMessages.set(member.id, []);
         }
 
         const userMessages = lastMessages.get(member.id);
-        for (const previousMessage of userMessages) {
-            const previousWords = new Set(previousMessage.split(/\s+/));
-            if ([...currentWords].some((word) => previousWords.has(word))) {
-                try {
-                    await message.delete();
-                    console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
-                } catch (error) {
-                    console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-                }
-                return;
+
+        // Si el último mensaje es igual al actual, eliminar el actual
+        if (userMessages.length > 0 && userMessages[userMessages.length - 1] === currentMessage) {
+            try {
+                await message.delete();
+                console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
+            } catch (error) {
+                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
+            return;
         }
 
-        // Almacenar mensajes recientes (hasta el límite)
+        // Almacenar el mensaje actual en el historial
         userMessages.push(currentMessage);
-        if (userMessages.length > MESSAGE_HISTORY_LIMIT) {
-            userMessages.shift();
+        if (userMessages.length > FLOOD_THRESHOLD) {
+            userMessages.shift(); // Mantener el historial limitado
         }
         lastMessages.set(member.id, userMessages);
 
