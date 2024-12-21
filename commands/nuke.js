@@ -8,7 +8,7 @@ module.exports = {
 
         try {
             // Obtener todos los mensajes del canal
-            const fetchedMessages = await message.channel.messages.fetch({ limit: 100 });
+            const fetchedMessages = await message.channel.messages.fetch({ limit: 1000 });
             
             // Borrar todos los mensajes
             await message.channel.bulkDelete(fetchedMessages);
