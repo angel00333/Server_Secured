@@ -1,7 +1,7 @@
 const { getEconomy, updateEconomy } = require('../economy');
 
 module.exports = {
-    name: 'resetEconomy', // Nombre del comando
+    name: 'reset', // Nombre del comando
     description: 'Reinicia la economía de todos los usuarios', // Descripción
     async execute(message) {
         // Verificar si el autor del mensaje tiene permisos de administrador
