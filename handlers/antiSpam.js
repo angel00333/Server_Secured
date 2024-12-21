@@ -1,8 +1,8 @@
 module.exports = {
     handleSpam: async (message) => {
-        const FLOOD_THRESHOLD = 5; // Límite de mensajes en el intervalo
-        const FLOOD_INTERVAL = 1000; // Intervalo de 1 segundo (1000 ms)
-        const MAX_MESSAGE_LENGTH = 1000; // Longitud máxima de mensaje
+        const FLOOD_THRESHOLD = 2; // Límite de mensajes en el intervalo
+        const FLOOD_INTERVAL = 100; // Intervalo de 1 segundo (1000 ms)
+        const MAX_MESSAGE_LENGTH = 50; // Longitud máxima de mensaje
         const messageMap = new Map(); // Almacenará los mensajes del usuario
         const lastMessages = new Map(); // Almacenará el último mensaje del usuario
 
