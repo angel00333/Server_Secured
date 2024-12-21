@@ -1,7 +1,7 @@
 module.exports = {
     handleSpam: async (message) => {
         const FLOOD_THRESHOLD = 5; // Límite de mensajes en el intervalo
-        const FLOOD_INTERVAL = 5000; // Intervalo en milisegundos
+        const FLOOD_INTERVAL = 1000; // Intervalo de 1 segundo (1000 ms)
         const MAX_MESSAGE_LENGTH = 1000; // Longitud máxima de mensaje
         const messageMap = new Map(); // Almacenará los mensajes del usuario
         const lastMessages = new Map(); // Almacenará el último mensaje del usuario
@@ -37,10 +37,10 @@ module.exports = {
 
         if (recentMessages.length > FLOOD_THRESHOLD) {
             try {
-                await member.ban({ reason: 'Flood: envío masivo de mensajes.' });
-                console.log(`Usuario ${member.user.tag} baneado por flood.`);
+                await message.delete(); // Eliminar el mensaje cuando se detecte el flood
+                console.log(`Mensaje de ${member.user.tag} eliminado por flood.`);
             } catch (error) {
-                console.error(`No se pudo banear a ${member.user.tag}:`, error);
+                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
             return;
         }
