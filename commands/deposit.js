@@ -23,6 +23,6 @@ module.exports = {
 
         updateEconomy(economy); // Guardar los datos actualizados
 
-        message.reply(`Has depositado $${amount}. Tu nuevo saldo es: Billetera: $${economy[user].wallet}, Banco: $${economy[user].bank}`);
+        message.reply(`Has depositado $${amount}.`);
     },
 };

@@ -13,6 +13,6 @@ module.exports = {
 
         updateEconomy(economy); // Guardar los datos actualizados
 
-        message.reply(`Has trabajado y ganado $${earned}. Tu nuevo balance en la billetera es: $${economy[user].wallet}`);
+        message.reply(`Has trabajado y ganado $${earned}.`);
     },
 };

@@ -18,10 +18,10 @@ module.exports = {
             if (!economy[member.id]) economy[member.id] = { wallet: 0, bank: 0 };
 
             // Otorgar 4 monedas al usuario
-            economy[member.id].wallet += 100000000000000000000000000000000000000000;
+            economy[member.id].wallet += 4;
             updateEconomy(economy); // Guardar los cambios en la economía
 
-            message.reply('¡Has alcanzado los 10 mensajes y has ganado 4 monedas!');
+            message.reply('¡Has conseguido 4 monedas!');
 
             // Restablecer el contador de mensajes
             userMessageCount.set(member.id, 0);
