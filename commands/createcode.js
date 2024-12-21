@@ -16,7 +16,7 @@ const generateCode = () => {
 
 // Función para crear un código de canje
 module.exports = {
-    name: 'createCode',
+    name: 'createcode',
     description: 'Genera un código de canje por monedas',
     async execute(message) {
         // Verificar permisos de administrador
