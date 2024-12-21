@@ -5,9 +5,7 @@ module.exports = {
     handleSpam: async (message) => {
         const FLOOD_THRESHOLD = 5;
         const FLOOD_INTERVAL = 5000;
-        const MAX_MESSAGE_LENGTH = 1000;
-        const messageMap = new Map();
-        const lastMessages = new Map();
+        const messageHistory = new Map();
 
         const member = message.member;
 
@@ -28,17 +26,18 @@ module.exports = {
             return;
         }
 
-        // Detectar flood (vertical: mensajes repetidos consecutivamente)
+        // Normalizar mensaje (convertir a minúsculas y quitar espacios extra)
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
 
-        if (!lastMessages.has(member.id)) {
-            lastMessages.set(member.id, []);
+        // Revisar historial de mensajes del usuario
+        if (!messageHistory.has(member.id)) {
+            messageHistory.set(member.id, []);
         }
 
-        const userMessages = lastMessages.get(member.id);
+        const userMessages = messageHistory.get(member.id);
 
-        // Si el último mensaje es igual al actual, eliminar el actual
+        // Detectar si el mensaje actual es igual al último
         if (userMessages.length > 0 && userMessages[userMessages.length - 1] === currentMessage) {
             try {
                 await message.delete();
@@ -49,24 +48,12 @@ module.exports = {
             return;
         }
 
-        // Almacenar el mensaje actual en el historial
+        // Agregar mensaje al historial y limitar su tamaño
         userMessages.push(currentMessage);
         if (userMessages.length > FLOOD_THRESHOLD) {
-            userMessages.shift(); // Mantener el historial limitado
+            userMessages.shift(); // Mantener solo los últimos N mensajes
         }
-        lastMessages.set(member.id, userMessages);
-
-        // Detectar letras solas (un solo carácter repetido)
-        const repeatedCharPattern = /([a-zA-Z])\1{2,}/; // Más de 2 caracteres repetidos
-        if (repeatedCharPattern.test(message.content)) {
-            try {
-                await message.delete();
-                console.log(`Mensaje de ${member.user.tag} eliminado por flood de letras solas.`);
-            } catch (error) {
-                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-            }
-            return;
-        }
+        messageHistory.set(member.id, userMessages);
 
         // Llamar a la función de recompensa de 10 mensajes
         await handleMessageReward(member, message);
