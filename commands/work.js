@@ -1,5 +1,5 @@
 const { getEconomy, updateEconomy } = require('../economy');
-const { EmbedBuilder } = require('discord.js'); // Importar EmbedBuilder
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'work',
@@ -14,22 +14,23 @@ module.exports = {
 
         // Frases aleatorias para el trabajo
         const workPhrases = [
-            '¡Gran esfuerzo! El trabajo duro tiene sus recompensas.',
-            '¡El sudor de tu frente ha pagado!',
-            '¡Hoy fue un buen día en el trabajo!',
-            '¡Excelente! Cada paso te acerca a tus metas.',
-            '¡Has demostrado dedicación en tu trabajo!'
+            'Trabajaste como moderador de discord y has ganado',
+            'Trabajaste en una panaderia todo el dia y has ganado',
+            'Vendiste cosas de valor y has ganado',
+            'Trabajaste como mesero en un restaurante y has ganado',
+            'Trabajaste como albañil y ganaste'
         ];
 
         const randomPhrase = workPhrases[Math.floor(Math.random() * workPhrases.length)];
 
         updateEconomy(economy); // Guardar los datos actualizados
 
-        const embed = new EmbedBuilder() // Usando EmbedBuilder en lugar de MessageEmbed
-            .setColor('#00FF00')
+        const embed = new EmbedBuilder()
+            .setColor('#FFD700')
             .setTitle('¡Trabajo Realizado!')
-            .setDescription(`${randomPhrase}\nHas trabajado y ganado $${earned}.`)
-            .setFooter({ text: '💼 Sigue acumulando tu fortuna', iconURL: 'https://i.imgur.com/xY8YpE8.png' }) // Usar setFooter de EmbedBuilder
+            .setDescription(`${randomPhrase} $${earned}.`)
+            .setThumbnail(message.author.displayAvatarURL()) // Icono del usuario en la parte superior izquierda
+            .setFooter({ text: 'Server Secured', iconURL: message.client.user.displayAvatarURL() }) // Icono del bot en el footer
             .setTimestamp();
 
         message.reply({ embeds: [embed] });

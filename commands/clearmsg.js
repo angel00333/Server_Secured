@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'nuke',
+    name: 'clearmsg',
     description: 'Borra todos los mensajes de un canal.',
     async execute(message, args) {
         if (!message.member.permissions.has('MANAGE_MESSAGES')) {
