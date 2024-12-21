@@ -1,15 +1,19 @@
+const { getEconomy, updateEconomy } = require('../economy');
+const { handleMessageReward } = require('./rewards');
+
 module.exports = {
     handleSpam: async (message) => {
-        const FLOOD_THRESHOLD = 3; // Límite de mensajes en el intervalo
-        const FLOOD_INTERVAL = 100; // Intervalo de 1 segundo (1000 ms)
-        const MAX_MESSAGE_LENGTH = 100; // Longitud máxima de mensaje
-        const messageMap = new Map(); // Almacenará los mensajes del usuario
-        const lastMessages = new Map(); // Almacenará el último mensaje del usuario
+        const FLOOD_THRESHOLD = 5;
+        const FLOOD_INTERVAL = 5000;
+        const MAX_MESSAGE_LENGTH = 1000;
+        const messageMap = new Map();
+        const lastMessages = new Map();
 
         const member = message.member;
 
         // Detectar enlaces
-        if (/(http|https|www\.)/i.test(message.content)) {
+        const urlPattern = /(http|https|www\.)/i;
+        if (urlPattern.test(message.content)) {
             try {
                 await member.ban({ reason: 'Spam: envío de enlaces no permitidos.' });
                 console.log(`Usuario ${member.user.tag} baneado por enviar enlaces.`);
@@ -19,66 +23,74 @@ module.exports = {
             return;
         }
 
+        // Detectar flood (palabras repetidas o letras solas)
         const now = Date.now();
-
-        // Detectar flood
         if (!messageMap.has(member.id)) {
             messageMap.set(member.id, []);
         }
         const timestamps = messageMap.get(member.id);
-
-        // Agregar la nueva marca de tiempo
         timestamps.push(now);
+        messageMap.set(
+            member.id,
+            timestamps.filter((timestamp) => timestamp >= now - FLOOD_INTERVAL)
+        );
 
-        // Filtrar marcas de tiempo que son más antiguas que el intervalo de flood
-        const recentMessages = timestamps.filter((timestamp) => timestamp >= now - FLOOD_INTERVAL);
-        
-        messageMap.set(member.id, recentMessages); // Actualizar el mapa con los mensajes recientes
-
-        if (recentMessages.length > FLOOD_THRESHOLD) {
+        if (timestamps.length > FLOOD_THRESHOLD) {
             try {
-                // Eliminar el mensaje cuando se detecte el flood
-                if (message.deletable) {
-                    await message.delete(); 
-                    console.log(`Mensaje de ${member.user.tag} eliminado por flood.`);
-                }
+                await member.ban({ reason: 'Flood: envío masivo de mensajes.' });
+                console.log(`Usuario ${member.user.tag} baneado por flood.`);
             } catch (error) {
-                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
+                console.error(`No se pudo banear a ${member.user.tag}:`, error);
             }
+            messageMap.delete(member.id);
             return;
         }
 
-        // Detectar mensajes grandes
-        if (message.content.length > MAX_MESSAGE_LENGTH) {
-            try {
-                // Eliminar el mensaje cuando se detecte que es demasiado largo
-                if (message.deletable) {
-                    await message.delete();
-                    console.log(`Mensaje de ${member.user.tag} eliminado por ser demasiado largo.`);
-                }
-            } catch (error) {
-                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-            }
-            return;
-        }
-
-        // Detectar mensajes repetidos
+        // Detectar flood de palabras repetidas
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
 
-        // Si el mensaje ya fue enviado recientemente, eliminar el mensaje
         if (lastMessages.get(member.id) === currentMessage) {
             try {
-                // Eliminar el mensaje repetido
-                if (message.deletable) {
-                    await message.delete();
-                    console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
-                }
+                await message.delete();
+                console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
             } catch (error) {
                 console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
-        } else {
-            lastMessages.set(member.id, currentMessage); // Almacenar el nuevo mensaje
+            return;
         }
+
+        // Detectar letras solas (un solo carácter repetido)
+        const repeatedCharPattern = /([a-zA-Z])\1{2,}/; // Más de 2 caracteres repetidos
+        if (repeatedCharPattern.test(message.content)) {
+            try {
+                await message.delete();
+                console.log(`Mensaje de ${member.user.tag} eliminado por flood de letras solas.`);
+            } catch (error) {
+                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
+            }
+            return;
+        }
+
+        // Detectar imágenes NSFW
+        if (message.attachments.size > 0) {
+            const attachment = message.attachments.first();
+            if (attachment.url.match(/\.(jpe?g|png|gif|bmp|webp)$/i)) {
+                // Aquí puedes usar una librería de detección NSFW si tienes acceso a una API
+                // Para efectos de ejemplo, asumimos que cualquier imagen puede ser NSFW
+                try {
+                    await message.delete();
+                    console.log(`Imagen de ${member.user.tag} eliminada por ser NSFW.`);
+                } catch (error) {
+                    console.error(`No se pudo eliminar la imagen de ${member.user.tag}:`, error);
+                }
+                return;
+            }
+        }
+
+        // Llamar a la función de recompensa de 10 mensajes
+        await handleMessageReward(member, message);
+
+        lastMessages.set(member.id, currentMessage);
     },
 };
