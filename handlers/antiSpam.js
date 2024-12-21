@@ -6,10 +6,16 @@ module.exports = {
         const FLOOD_THRESHOLD = 5;
         const FLOOD_INTERVAL = 5000;
         const MAX_MESSAGE_LENGTH = 1000;
+        const MESSAGE_HISTORY_LIMIT = 10;
         const messageMap = new Map();
         const lastMessages = new Map();
 
         const member = message.member;
+
+        // No procesar mensajes de administradores
+        if (member.permissions.has('Administrator')) {
+            return;
+        }
 
         // Detectar enlaces
         const urlPattern = /(http|https|www\.)/i;
@@ -46,19 +52,35 @@ module.exports = {
             return;
         }
 
-        // Detectar flood de palabras repetidas
+        // Detectar palabras repetidas horizontal y verticalmente
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
+        const currentWords = new Set(currentMessage.split(/\s+/));
 
-        if (lastMessages.get(member.id) === currentMessage) {
-            try {
-                await message.delete();
-                console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
-            } catch (error) {
-                console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
-            }
-            return;
+        if (!lastMessages.has(member.id)) {
+            lastMessages.set(member.id, []);
         }
+
+        const userMessages = lastMessages.get(member.id);
+        for (const previousMessage of userMessages) {
+            const previousWords = new Set(previousMessage.split(/\s+/));
+            if ([...currentWords].some((word) => previousWords.has(word))) {
+                try {
+                    await message.delete();
+                    console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
+                } catch (error) {
+                    console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
+                }
+                return;
+            }
+        }
+
+        // Almacenar mensajes recientes (hasta el límite)
+        userMessages.push(currentMessage);
+        if (userMessages.length > MESSAGE_HISTORY_LIMIT) {
+            userMessages.shift();
+        }
+        lastMessages.set(member.id, userMessages);
 
         // Detectar letras solas (un solo carácter repetido)
         const repeatedCharPattern = /([a-zA-Z])\1{2,}/; // Más de 2 caracteres repetidos
@@ -72,25 +94,7 @@ module.exports = {
             return;
         }
 
-        // Detectar imágenes NSFW
-        if (message.attachments.size > 0) {
-            const attachment = message.attachments.first();
-            if (attachment.url.match(/\.(jpe?g|png|gif|bmp|webp)$/i)) {
-                // Aquí puedes usar una librería de detección NSFW si tienes acceso a una API
-                // Para efectos de ejemplo, asumimos que cualquier imagen puede ser NSFW
-                try {
-                    await message.delete();
-                    console.log(`Imagen de ${member.user.tag} eliminada por ser NSFW.`);
-                } catch (error) {
-                    console.error(`No se pudo eliminar la imagen de ${member.user.tag}:`, error);
-                }
-                return;
-            }
-        }
-
         // Llamar a la función de recompensa de 10 mensajes
         await handleMessageReward(member, message);
-
-        lastMessages.set(member.id, currentMessage);
     },
 };
