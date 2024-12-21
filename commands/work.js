@@ -1,5 +1,5 @@
 const { getEconomy, updateEconomy } = require('../economy');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js'); // Importar EmbedBuilder
 
 module.exports = {
     name: 'work',
@@ -25,11 +25,11 @@ module.exports = {
 
         updateEconomy(economy); // Guardar los datos actualizados
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder() // Usando EmbedBuilder en lugar de MessageEmbed
             .setColor('#00FF00')
             .setTitle('¡Trabajo Realizado!')
             .setDescription(`${randomPhrase}\nHas trabajado y ganado $${earned}.`)
-            .setFooter('💼 Sigue acumulando tu fortuna', 'https://i.imgur.com/xY8YpE8.png') // Aquí puedes cambiar la imagen del footer
+            .setFooter({ text: '💼 Sigue acumulando tu fortuna', iconURL: 'https://i.imgur.com/xY8YpE8.png' }) // Usar setFooter de EmbedBuilder
             .setTimestamp();
 
         message.reply({ embeds: [embed] });
