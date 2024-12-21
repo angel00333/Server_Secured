@@ -3,9 +3,8 @@ const { handleMessageReward } = require('./rewards');
 
 module.exports = {
     handleSpam: async (message) => {
-        const FLOOD_THRESHOLD = 5;
-        const FLOOD_INTERVAL = 5000;
-        const messageHistory = new Map();
+        const FLOOD_THRESHOLD = 5; // Mensajes consecutivos permitidos
+        const messageMap = new Map(); // Para rastrear los mensajes recientes
 
         const member = message.member;
 
@@ -14,31 +13,17 @@ module.exports = {
             return;
         }
 
-        // Detectar enlaces
-        const urlPattern = /(http|https|www\.)/i;
-        if (urlPattern.test(message.content)) {
-            try {
-                await member.ban({ reason: 'Spam: envío de enlaces no permitidos.' });
-                console.log(`Usuario ${member.user.tag} baneado por enviar enlaces.`);
-            } catch (error) {
-                console.error(`No se pudo banear a ${member.user.tag}:`, error);
-            }
-            return;
-        }
-
-        // Normalizar mensaje (convertir a minúsculas y quitar espacios extra)
         const normalize = (text) => text.trim().toLowerCase();
-        const currentMessage = normalize(message.content);
+        const normalizedMessage = normalize(message.content);
 
-        // Revisar historial de mensajes del usuario
-        if (!messageHistory.has(member.id)) {
-            messageHistory.set(member.id, []);
+        // Obtener historial de mensajes del usuario
+        if (!messageMap.has(member.id)) {
+            messageMap.set(member.id, []);
         }
+        const userMessages = messageMap.get(member.id);
 
-        const userMessages = messageHistory.get(member.id);
-
-        // Detectar si el mensaje actual es igual al último
-        if (userMessages.length > 0 && userMessages[userMessages.length - 1] === currentMessage) {
+        // Detectar si el mensaje actual es igual a un mensaje reciente
+        if (userMessages.length > 0 && userMessages[userMessages.length - 1] === normalizedMessage) {
             try {
                 await message.delete();
                 console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
@@ -48,14 +33,16 @@ module.exports = {
             return;
         }
 
-        // Agregar mensaje al historial y limitar su tamaño
-        userMessages.push(currentMessage);
-        if (userMessages.length > FLOOD_THRESHOLD) {
-            userMessages.shift(); // Mantener solo los últimos N mensajes
-        }
-        messageHistory.set(member.id, userMessages);
+        // Agregar mensaje al historial
+        userMessages.push(normalizedMessage);
 
-        // Llamar a la función de recompensa de 10 mensajes
+        // Mantener solo los últimos FLOOD_THRESHOLD mensajes
+        if (userMessages.length > FLOOD_THRESHOLD) {
+            userMessages.shift();
+        }
+        messageMap.set(member.id, userMessages);
+
+        // Llamar a la función de recompensa
         await handleMessageReward(member, message);
     },
 };
