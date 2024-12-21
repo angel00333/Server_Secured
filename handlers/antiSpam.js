@@ -1,8 +1,8 @@
 module.exports = {
     handleSpam: async (message) => {
-        const FLOOD_THRESHOLD = 2; // Límite de mensajes en el intervalo
-        const FLOOD_INTERVAL = 100; // Intervalo de 1 segundo (1000 ms)
-        const MAX_MESSAGE_LENGTH = 50; // Longitud máxima de mensaje
+        const FLOOD_THRESHOLD = 5; // Límite de mensajes en el intervalo
+        const FLOOD_INTERVAL = 1000; // Intervalo de 1 segundo (1000 ms)
+        const MAX_MESSAGE_LENGTH = 1000; // Longitud máxima de mensaje
         const messageMap = new Map(); // Almacenará los mensajes del usuario
         const lastMessages = new Map(); // Almacenará el último mensaje del usuario
 
@@ -37,8 +37,11 @@ module.exports = {
 
         if (recentMessages.length > FLOOD_THRESHOLD) {
             try {
-                await message.delete(); // Eliminar el mensaje cuando se detecte el flood
-                console.log(`Mensaje de ${member.user.tag} eliminado por flood.`);
+                // Eliminar el mensaje cuando se detecte el flood
+                if (message.deletable) {
+                    await message.delete(); 
+                    console.log(`Mensaje de ${member.user.tag} eliminado por flood.`);
+                }
             } catch (error) {
                 console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
@@ -48,8 +51,11 @@ module.exports = {
         // Detectar mensajes grandes
         if (message.content.length > MAX_MESSAGE_LENGTH) {
             try {
-                await message.delete();
-                console.log(`Mensaje de ${member.user.tag} eliminado por ser demasiado largo.`);
+                // Eliminar el mensaje cuando se detecte que es demasiado largo
+                if (message.deletable) {
+                    await message.delete();
+                    console.log(`Mensaje de ${member.user.tag} eliminado por ser demasiado largo.`);
+                }
             } catch (error) {
                 console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
@@ -60,16 +66,19 @@ module.exports = {
         const normalize = (text) => text.trim().toLowerCase();
         const currentMessage = normalize(message.content);
 
+        // Si el mensaje ya fue enviado recientemente, eliminar el mensaje
         if (lastMessages.get(member.id) === currentMessage) {
             try {
-                await message.delete();
-                console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
+                // Eliminar el mensaje repetido
+                if (message.deletable) {
+                    await message.delete();
+                    console.log(`Mensaje repetido de ${member.user.tag} eliminado.`);
+                }
             } catch (error) {
                 console.error(`No se pudo eliminar el mensaje de ${member.user.tag}:`, error);
             }
-            return;
+        } else {
+            lastMessages.set(member.id, currentMessage); // Almacenar el nuevo mensaje
         }
-
-        lastMessages.set(member.id, currentMessage);
     },
 };
