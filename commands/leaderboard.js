@@ -20,9 +20,9 @@ module.exports = {
         const leaderboard = await Promise.all(sortedUsers.map(async ([userId, data], index) => {
             try {
                 const user = await message.client.users.fetch(userId); // Obtener usuario según ID
-                return `**${index + 1}.** ${user.username} - 💰 $${data.wallet}`;
+                return `**${index + 1}.** ${user.username} - <a:emoji_2:1321161015261397013> ${data.wallet} monedas`;
             } catch {
-                return `**${index + 1}.** Usuario desconocido - 💰 $${data.wallet}`;
+                return `**${index + 1}.** Usuario desconocido - <a:emoji_2:1321161015261397013> ${data.wallet}monedas`;
             }
         }));
 

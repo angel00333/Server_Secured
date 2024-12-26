@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { handleSpam } = require('./handlers/antiSpam');
 const fs = require('fs');
 
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,

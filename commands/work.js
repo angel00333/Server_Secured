@@ -8,7 +8,7 @@ module.exports = {
         const user = message.author.id;
         const economy = getEconomy();
 
-        if (!economy[user]) economy[user] = { wallet: 0, bank: 0 };
+        if (!economy[user]) economy[user] = { wallet: 0, bank: 0};
         const earned = Math.floor(Math.random() * 100) + 1; // Gana entre $1 y $100
         economy[user].wallet += earned;
 
@@ -28,7 +28,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor('#FFD700')
             .setTitle('¡Trabajo Realizado!')
-            .setDescription(`${randomPhrase} $${earned}.`)
+            .setDescription(`${randomPhrase} **${earned}** <a:emoji_2:1321161015261397013> monedas.`)
             .setThumbnail(message.author.displayAvatarURL()) // Icono del usuario en la parte superior izquierda
             .setFooter({ text: 'Server Secured', iconURL: message.client.user.displayAvatarURL() }) // Icono del bot en el footer
             .setTimestamp();
