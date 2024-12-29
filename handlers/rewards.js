@@ -18,7 +18,7 @@ module.exports = {
             if (!economy[member.id]) economy[member.id] = { wallet: 0, bank: 0 };
 
             // Otorgar 4 monedas al usuario
-            economy[member.id].wallet += 4;
+            economy[member.id].wallet += 10;
             updateEconomy(economy); // Guardar los cambios en la economía
 
             message.reply('¡Has conseguido 4 monedas!');
