@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { handleMessageReward } = require('./handlers/rewards');
 const { handleSpam } = require('./handlers/antiSpam');
 const fs = require('fs');
 
@@ -34,6 +35,8 @@ client.on('messageCreate', async (message) => {
 
     // Manejar spam y flood
     await handleSpam(message);
+
+    await handleMessageReward(message.member, message);
 
     // Manejar comandos
     const prefix = '!'; // Cambia el prefijo según tu preferencia
