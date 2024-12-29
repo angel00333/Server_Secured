@@ -15,14 +15,14 @@ module.exports = {
         }
 
         if (economy[user].wallet < amount) {
-            return message.reply('No tienes suficiente dinero en la billetera para depositar.');
+            return message.reply('No tienes suficientes monedas para depositar.');
         }
 
         economy[user].wallet -= amount;
         economy[user].bank += amount;
 
-        updateEconomy(economy); // Guardar los datos actualizados
+        updateEconomy(economy); 
 
-        message.reply(`Has depositado $${amount}.`);
+        message.reply(`Has depositado <a:emoji_2:1321161015261397013>**${amount}** monedas.`);
     },
 };

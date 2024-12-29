@@ -15,14 +15,14 @@ module.exports = {
         }
 
         if (economy[user].bank < amount) {
-            return message.reply('No tienes suficiente dinero en el banco para retirar.');
+            return message.reply('No tienes suficientes monedas en el banco para retirar.');
         }
 
         economy[user].bank -= amount;
         economy[user].wallet += amount;
 
-        updateEconomy(economy); // Guardar los datos actualizados
+        updateEconomy(economy);
 
-        message.reply(`Has retirado $${amount}.`);
+        message.reply(`Has retirado <a:emoji_2:1321161015261397013> **${amount}** monedas.`);
     },
 };
