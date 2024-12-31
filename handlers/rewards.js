@@ -21,7 +21,7 @@ module.exports = {
             economy[member.id].wallet += 10;
             updateEconomy(economy); // Guardar los cambios en la economía
 
-            message.reply('¡Has conseguido 4 monedas!');
+            message.reply('¡Has conseguido 10 monedas!');
 
             // Restablecer el contador de mensajes
             userMessageCount.set(member.id, 0);
