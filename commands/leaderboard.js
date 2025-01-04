@@ -3,13 +3,17 @@ const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'leaderboard',
-    description: 'Muestra la tabla de clasificación de los usuarios con más dinero.',
+    description: 'Muestra la tabla de clasificación de los usuarios con más dinero (wallet + bank).',
     async execute(message) {
         const economy = getEconomy();
 
-        // Ordenar los usuarios por la cantidad de dinero en la billetera
+        // Ordenar los usuarios por la suma de wallet y bank
         const sortedUsers = Object.entries(economy)
-            .sort(([, a], [, b]) => b.wallet - a.wallet) // Orden descendente por la billetera
+            .map(([userId, data]) => ({
+                userId,
+                total: (data.wallet || 0) + (data.bank || 0),
+            }))
+            .sort((a, b) => b.total - a.total) // Orden descendente por el total
             .slice(0, 10); // Mostrar solo los 10 principales
 
         if (sortedUsers.length === 0) {
@@ -17,19 +21,19 @@ module.exports = {
         }
 
         // Crear el contenido de la tabla de clasificación
-        const leaderboard = await Promise.all(sortedUsers.map(async ([userId, data], index) => {
+        const leaderboard = await Promise.all(sortedUsers.map(async (user, index) => {
             try {
-                const user = await message.client.users.fetch(userId); // Obtener usuario según ID
-                return `**${index + 1}.** ${user.username} - <a:emoji_2:1321161015261397013> ${data.wallet} monedas`;
+                const fetchedUser = await message.client.users.fetch(user.userId); // Obtener usuario según ID
+                return `**${index + 1}.** ${fetchedUser.username} - <a:emoji_2:1321161015261397013> ${user.total} monedas`;
             } catch {
-                return `**${index + 1}.** Usuario desconocido - <a:emoji_2:1321161015261397013> ${data.wallet}monedas`;
+                return `**${index + 1}.** Usuario desconocido - <a:emoji_2:1321161015261397013> ${user.total} monedas`;
             }
         }));
 
         // Crear el embed para la tabla de clasificación
         const embed = new EmbedBuilder()
             .setColor('#FFD700')
-            .setTitle('🏆 Tabla de Clasificación')
+            .setTitle('🏆 Tabla de Clasificación (Wallet + Bank)')
             .setDescription(leaderboard.join('\n'))
             .setFooter({ text: `Solicitado por ${message.author.tag}`, iconURL: message.author.displayAvatarURL() })
             .setTimestamp();

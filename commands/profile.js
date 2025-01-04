@@ -38,6 +38,20 @@ module.exports = {
             if (!Array.isArray(economy[userId].medals)) economy[userId].medals = [];
         }
 
+        // Verificar si el usuario gana una "Medalla de la Serpiente"
+        const tokens = economy[userId].arcadeTokens;
+        const earnedMedals = Math.floor(tokens / 100);
+        const currentMedals = economy[userId].medals.filter(medal => medal === '<:emoji_5:1322040089999577221> Medalla de la Serpiente').length;
+
+        if (earnedMedals > currentMedals) {
+            const newMedals = earnedMedals - currentMedals;
+            for (let i = 0; i < newMedals; i++) {
+                economy[userId].medals.push('<:emoji_5:1322040089999577221> Medalla de la Serpiente');
+            }
+            saveEconomy(economy);
+            message.channel.send(`<@${userId}> ¡Has recibido la <:emoji_5:1322040089999577221> **Medalla de la Serpiente** por acumular ${tokens} fichas de arcade!`);
+        }
+
         // Obtener las medallas del usuario
         const medals = economy[userId].medals.length > 0
             ? economy[userId].medals.join(', ')  // Unir las medallas con comas
