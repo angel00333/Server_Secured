@@ -1,24 +1,9 @@
 {
-    "794012497010360332": {
-        "wallet": 28,
-        "bank": 0,
-        "arcadeTokens": 100,
-        "medals": [
-            "<:emoji_5:1322040089999577221> Medalla de la Serpiente"
-        ],
-        "lastWorked": 1735950892262,
-        "gems": 0
-    },
-    "897830680690581575": {
-        "wallet": 0,
-        "bank": 0
-    },
-    "994027143770165308": {
-        "wallet": 0,
-        "bank": 0
-    },
-    "777257986682519564": {
-        "wallet": 0,
-        "bank": 0
-    }
+  "794012497010360332": {
+    "wallet": 1500,
+    "bank": 0,
+    "gems": 5,
+    "arcadeTokens": 5,
+    "medals": []
+  }
 }
