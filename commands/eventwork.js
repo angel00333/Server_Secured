@@ -45,12 +45,18 @@ module.exports = {
         userData.arcadeTokens = (userData.arcadeTokens || 0) + tokensEarned;
         userData.lastWorked = now;
 
+        // Verificar si el usuario alcanza 100 ArcadeTokens y otorgar la medalla
+        if (userData.arcadeTokens >= 100 && !userData.medals.includes('<:emoji_5:1322040089999577221> Medalla de la Serpiente')) {
+            userData.medals.push('<:emoji_5:1322040089999577221> Medalla de la Serpiente');
+            message.channel.send(`🎉 ¡Felicidades <@${userId}>! Has ganado la **Medalla de la Serpiente** por acumular 100 fichas de arcade.`);
+        }
+
         saveEconomy(economy);
 
         const embed = new EmbedBuilder()
             .setColor('#32CD32') // Color verde
             .setTitle('💼 ¡Trabajo realizado!')
-            .setDescription(`Has ganado ${tokensEarned} fichas de arcade por tu esfuerzo.`)
+            .setDescription(`Has ganado ${tokensEarned} fichas de arcade por tu esfuerzo. Ahora tienes ${userData.arcadeTokens} fichas.`)
             .setTimestamp()
             .setFooter({ text: 'Vuelve mañana para ganar más fichas.' });
 
