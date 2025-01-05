@@ -73,7 +73,7 @@ module.exports = {
             userEconomy.gems += rewards.gems;
             userEconomy.arcadeTokens += rewards.arcadeTokens;
             userdata[userId].firstDaily = false;
-            rewardMessage = '¡Has recibido tu recompensa por la primera vez!';
+            rewardMessage = '¡Has recibido el paquete de bienvenida!';
         } else {
             // Recompensa diaria regular
             rewards = { wallet: 100, gems: 2 };

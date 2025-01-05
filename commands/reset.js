@@ -14,7 +14,7 @@ module.exports = {
 
         // Reiniciar la economía (poner todos los saldos a cero)
         for (let userId in economy) {
-            economy[userId] = { wallet: 0, bank: 0 };
+            economy[userId] = { wallet: 0, bank: 0, gems: 0, arcadeTokens: 0 };
         }
 
         // Actualizar la economía con los nuevos valores (todos a cero)

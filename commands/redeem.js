@@ -6,7 +6,7 @@ const codesFilePath = './codes.json';
 
 module.exports = {
     name: 'redeem',
-    description: 'Canjea un código por monedas',
+    description: 'Canjea un código por monedas, gemas, o tokens de arcade',
     async execute(message, args) {
         const code = args[0]; // El código que el usuario intenta canjear
 
@@ -24,12 +24,22 @@ module.exports = {
 
         const codeData = codes[code];
 
-        if (codeData.used) {
-            return message.reply('Este código ya ha sido canjeado.');
+        // Verificar si el código es de tipo 'all' y si el usuario ya lo ha canjeado
+        if (!codeData.all && codeData.used >= codeData.maxUses) {
+            return message.reply('Este código ha alcanzado el límite de usos.');
+        }
+
+        // Verificar si el usuario ya ha canjeado el código
+        if (codeData.usedBy && codeData.usedBy.includes(message.author.id)) {
+            return message.reply('Ya has canjeado este código.');
         }
 
         // Marcar el código como usado
-        codes[code].used = true;
+        if (!codeData.all) {
+            codeData.used++;
+        }
+        codeData.usedBy = codeData.usedBy || [];
+        codeData.usedBy.push(message.author.id);
         fs.writeFileSync(codesFilePath, JSON.stringify(codes, null, 2));
 
         // Obtener la economía del usuario
@@ -38,14 +48,22 @@ module.exports = {
 
         // Si el usuario no tiene una economía registrada, crearla
         if (!economy[userId]) {
-            economy[userId] = { wallet: 0, bank: 0 };
+            economy[userId] = { wallet: 0, gems: 0, arcadeTokens: 0 };
         }
 
-        // Otorgar las monedas al usuario
-        economy[userId].wallet += codeData.reward;
+        // Otorgar la recompensa según el tipo
+        if (codeData.rewardType === 'wallet') {
+            economy[userId].wallet += codeData.rewardAmount;
+        } else if (codeData.rewardType === 'gems') {
+            economy[userId].gems += codeData.rewardAmount;
+        } else if (codeData.rewardType === 'arcadeTokens') {
+            economy[userId].arcadeTokens += codeData.rewardAmount;
+        }
+
+        // Actualizar la economía
         updateEconomy(economy);
 
         // Notificar al usuario que ha canjeado el código exitosamente
-        message.reply(`¡Código canjeado exitosamente! Has recibido ${codeData.reward} monedas.`);
+        message.reply(`¡Código canjeado exitosamente! Has recibido **${codeData.rewardAmount} ${codeData.rewardType}**.`);
     },
 };

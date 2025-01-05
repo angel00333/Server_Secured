@@ -27,6 +27,7 @@ module.exports = {
                     { name: '!withdraw', description: 'Saca dinero de tu banco.' },
                     { name: '!createcode', description: 'Crea un codigo canjeable (solo admin).' },
                     { name: '!redeem', description: 'Canjea un codigo.' },
+                    { name: '!share', description: 'Comparte monedas con un usuario.' },
                 ],
             },
         ];
