@@ -13,22 +13,27 @@ module.exports = {
                     { name: '!mute', description: 'Silencia a un usuario (solo admin).' },
                     { name: '!ban', description: 'Banea a un usuario (solo admin).' },
                     { name: '!unban', description: 'Desbanea a un usuario (solo admin).' },
-                    { name: '!clearmsg', description: 'Borrar cierta cantidad de mensajes en un canal (solo admin).' },
-                    { name: '!unmutw', description: 'Desmutea a un usuario (solo admin).' },
+                    { name: '!clear', description: 'Borrar cierta cantidad de mensajes en un canal (solo admin).' },
+                    { name: '!unmute', description: 'Desmutea a un usuario (solo admin).' },
+                    { name: '!strike', description: 'Da una advertencia al usuario (solo admin).' },
+                    { name: '!unstrike', description: 'Quita advertencias a los usuarios (solo admin).' },
+                    { name: '!kick', description: 'Expulsa a un usuario (solo admin).' },
                 ],
             },
             {
-                title: 'Comandos de Economía',
+                title: 'Comandos de Economía (no disponible)',
                 commands: [
-                    { name: '!work', description: 'Trabaja para ganar dinero.' },
-                    { name: '!leaderboard', description: 'Muestra la tabla de clasificación de los usuarios más ricos.' },
-                    { name: '!wallet', description: 'Consulta tu billetera.' },
-                    { name: '!deposit', description: 'Deposita dinero en tu banco.' },
-                    { name: '!withdraw', description: 'Saca dinero de tu banco.' },
-                    { name: '!createcode', description: 'Crea un codigo canjeable (solo admin).' },
-                    { name: '!redeem', description: 'Canjea un codigo.' },
-                    { name: '!share', description: 'Comparte monedas con un usuario.' },
+                    //{ name: '!work', description: 'Trabaja para ganar dinero.' },
+                    //{ name: '!leaderboard', description: 'Muestra la tabla de clasificación de los usuarios más ricos.' },
+                    //{ name: '!wallet', description: 'Consulta tu billetera.' },
+                    //{ name: '!deposit', description: 'Deposita dinero en tu banco.' },
+                    //{ name: '!withdraw', description: 'Saca dinero de tu banco.' },
+                    //{ name: '!createcode', description: 'Crea un codigo canjeable (solo admin).' },
+                    //{ name: '!redeem', description: 'Canjea un codigo.' },
+                    //{ name: '!share', description: 'Comparte monedas con un usuario.' },
+
                 ],
+                
             },
         ];
 
