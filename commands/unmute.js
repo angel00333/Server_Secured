@@ -1,3 +1,5 @@
+const { PermissionsBitField } = require('discord.js');
+
 module.exports = {
     name: 'unmute', // Nombre del comando
     description: 'Desmutea a un usuario.', // Descripción
