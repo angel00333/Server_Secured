@@ -4,5 +4,9 @@
         "bank": 0,
         "gems": null,
         "arcadeTokens": null
+    },
+    "777257986682519564": {
+        "wallet": 10,
+        "bank": 0
     }
 }
