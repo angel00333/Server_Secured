@@ -39,7 +39,7 @@ client.on('messageCreate', async (message) => {
     await handleMessageReward(message.member, message);
 
     // Manejar comandos
-    const prefix = '!'; // Cambia el prefijo según tu preferencia
+    const prefix = 'w!'; // Cambia el prefijo según tu preferencia
     if (!message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/\s+/);
