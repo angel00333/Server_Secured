@@ -14,7 +14,7 @@ module.exports = {
       const response = await getGeminiResponse(question);
       message.reply(`**Pregunta:** ${question}\n**Respuesta:** ${response}`);
     } catch (error) {
-      console.error('Error al obtener respuesta de Gemini:', error?.response?.data || error.message);
+      console.error('Error al obtener una respuesta de Gemini:', error?.response?.data || error.message);
       message.reply('❌ Hubo un error al procesar tu pregunta. Intenta más tarde.');
     }
   },
